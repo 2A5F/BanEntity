@@ -1,0 +1,12 @@
+name: BanItemEntity
+version: 1.0.0
+author: meowtype.io
+main: io.meowtype.ban_item_entity.BanItemEntity
+permissions:
+  ban-item-entity.*:
+    default: op
+commands:
+  ban-item-entity:
+    usage: /ban-item-entity help
+    aliases: [banitementity, "ban_item_entity"]
+    permission: ban-item-entity.*
