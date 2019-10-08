@@ -64,10 +64,18 @@ class BanItemEntity : JavaPlugin() {
     private fun saveBanList() {
         val section = config.createSection("ban_list")
         for ((id, opt) in banList) {
+            if(opt.isAll) {
+                section.set(id, true)
+                continue
+            }
+            if(opt.isNone) {
+                section.set(id, false)
+                continue
+            }
             val ban = section.createSection(id)
-            ban.set("pickup", opt.pickup)
-            ban.set("remove", opt.remove)
-            ban.set("create", opt.create)
+            if(opt.pickup) ban.set("pickup", true)
+            if(opt.remove) ban.set("remove", true)
+            if(opt.create) ban.set("create", true)
         }
         saveConfig()
     }
@@ -168,16 +176,16 @@ class BanItemEntity : JavaPlugin() {
     private val listener = object : Listener {
 
         @EventHandler
-        fun onEntitySpawn(event: EntitySpawnEvent) {
-            val entity = event.entity
-            if(entity is Item) {
-                val nbt = NBTEntity(entity)
-                val id = nbt.getCompound("Item").getString("id")
-                val ban = banList[id] ?: return
-                if(ban.create || ban.remove) {
-                    event.isCancelled = true
-                    entity.remove()
-                }
+        fun onItemSpawn(event: ItemSpawnEvent) {
+            val item = event.entity
+            val nbt = NBTEntity(item)
+            val id = nbt.getCompound("Item").getString("id")
+            val ban = banList[id] ?: return
+            if(ban.create || ban.remove) {
+                event.isCancelled = true
+            }
+            if(ban.remove) {
+                item.remove()
             }
         }
 
@@ -188,11 +196,24 @@ class BanItemEntity : JavaPlugin() {
             val id = nbt.getCompound("Item").getString("id")
 
             val ban = banList[id] ?: return
-            if(ban.pickup || ban.create || ban.remove) {
+            if(ban.pickup || ban.remove) {
                 event.isCancelled = true
             }
-            if(ban.create || ban.remove) {
+            if(ban.remove) {
                 item.remove()
+            }
+        }
+
+        @EventHandler
+        fun onItemMerge(event: ItemMergeEvent) {
+            val item = event.entity
+            val nbt = NBTEntity(item)
+            val id = nbt.getCompound("Item").getString("id")
+            val ban = banList[id] ?: return
+            if(ban.remove) {
+                event.isCancelled = true
+                item.remove()
+                event.target.remove()
             }
         }
     }
@@ -201,6 +222,7 @@ class BanItemEntity : JavaPlugin() {
 data class BanOption(val pickup: Boolean, val remove: Boolean, val create: Boolean) {
     constructor(all: Boolean): this(all, all, all)
     val isAll get() = pickup && remove && create
+    val isNone get() = !pickup && !remove && !create
     val str get() = if(isAll) "all" else {
         val list = mutableListOf<String>()
         if(pickup) list.add("pickup")

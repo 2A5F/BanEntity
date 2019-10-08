@@ -22,7 +22,7 @@ Just do one thing, ban entity form of item
 ```yml
 ban_list:
   # the item or block id
-  'minecraft:tnt':
+  minecraft:tnt:
     # set true to let player cant pick up this item
     pickup: true
     # set true to remove / kill the item entity
@@ -30,5 +30,5 @@ ban_list:
     # set true to let this item entity cant be create / summon
     create: true
   # set true to ban all
-  'minecraft:tnt_minecart': true
+  minecraft:tnt_minecart: true
 ```
