@@ -144,7 +144,7 @@ class BanItemEntity : JavaPlugin() {
                                 }
                             }
                             banList[args[0]] = BanOption(pickup, remove, create)
-                            sender.sendMessage("[args[0]] set to ${banList[args[0]]!!.str}")
+                            sender.sendMessage("[${args[0]}] set to ${banList[args[0]]!!.str}")
                             saveBanList()
                         }
                     } else {
